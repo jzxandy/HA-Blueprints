@@ -1,4 +1,4 @@
-Random place for me to upload blueprints that I've worked on
+Random place for me to upload blueprints that I've worked on out of necessity
 
 
 **Flashed Moe's detached mode blueprints:**
