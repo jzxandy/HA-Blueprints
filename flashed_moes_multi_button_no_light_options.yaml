@@ -1,41 +1,40 @@
 blueprint:
-  name: Turn ON & OFF Lights (Multi Button - Press Trigger)
+  name: Turn ON & OFF Lights (Multi Button - Press Trigger - NO Light Options)
   description: >
     # ✳️ Button Switch - Turn ON & OFF Lights with one or more buttons
 
     - Allows multiple toggle switches to control the same set of entities.
-    
-    - Automation triggers on the button state going from `released` → `press` (e.g. custom flashed Moe’s switches).
+
+    - Triggers on `released` → `press` (e.g. flashed Moe’s Zigbee buttons).
     
     - Toggles `main_entity` on/off.
     
     - Optionally toggles `alternating_entity` to the inverse of `main_entity`.
     
-
-
-    - **IMPORTANT - Ensure that for each and every button that you want to function with this blueprint (referred to below as "toggle switch(es)"), you have the following settings enabled in Z2M:**
+    - ✅ Works well for momentary buttons that emit "press" events.
     
-    (1) "switch mode" = "MOMENTARY"
-    
-    (2) "switch action mode" = "TOGGLE"
+    - 🔁 Can be reused with different button groups for various lights.
 
-
-
-
-    - **IMPORTANT - Ensure that for each LIGHT that you want to control with this blueprint, you have the following settings enabled in Z2M for the relay(s) that feed power to the light(s):**
+    - **IMPORTANT - Ensure that for each button (referred to below as a toggle switch), you have the following settings enabled in Z2M for that particular button:**
     
-    (1) "switch relay mode" = "DETACHED"
+    - "switch mode" = "MOMENTARY"
     
-    (2) "state" = ON
+    - "switch action mode" = "TOGGLE"
+
+    - **IMPORTANT - Ensure that for each LIGHT that you want to control in this automation, you have the following settings enabled in Z2M for the relay or relays that feed power to the lights:**
     
-    (3) "power-on behaviour" = ON
+    - "switch relay mode" = "DETACHED"
+    
+    - "state" = ON
+    
+    - "power-on behaviour" = ON
 
   domain: automation
 
   input:
     toggle_switch:
       name: Toggle Switch(es) *
-      description: One or more flashed Moe's buttons to control the lights. If you select more than one, each and every individual button in this list will control the light(s).
+      description: One or more switches (e.g. Zigbee buttons) that control the entities.
       selector:
         entity:
           domain: sensor
@@ -43,7 +42,7 @@ blueprint:
 
     main_entity:
       name: Light(s) *
-      description: Select the single or group light entity (or entities) that you want your button(s) to control simultaneously.
+      description: Select the single or group light entity (or entities) your button/s to control simultaneously.
       selector:
         entity:
           domain: light
