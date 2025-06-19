@@ -35,7 +35,7 @@ blueprint:
   input:
     toggle_switch:
       name: Toggle Switch(es) *
-      description: One or more flashed Moe's buttons to control the lights. If you select more than one, each and every individual button will control the light(s).
+      description: One or more flashed Moe's buttons to control the lights. If you select more than one, each and every individual button in this list will control the light(s).
       selector:
         entity:
           domain: sensor
@@ -51,7 +51,7 @@ blueprint:
 
     alternating_entity:
       name: LED Indicator(s)
-      description: Optional - Enable this to automatically sync LED indicator(s) to reflect the *opposite* state to that of the selected light(s). You must set the relay indicator mode for each of the corresponding toggle switch(es) to "manual" in Z2M in order for this part of the automation to function properly. See above instructions relating to `IMPORTANT`
+      description: Optional - Enable this to automatically sync LED indicator(s) to reflect the *opposite* state to that of the selected light(s). You must set the relay indicator mode for each of the corresponding toggle switch(es) to "manual" in Z2M in order for this part of the automation to function properly. See above instructions relating to `IMPORTANT`.
       default: []
       selector:
         entity:
