@@ -1,5 +1,5 @@
 blueprint:
-  name: Turn ON & OFF Lights (Multi Button - Press Trigger - WITH Light Options)
+  name: Custom Moe's Zigbee Switch - Detached Mode - Extended - WITH Light Options
   description: >
     # ✳️ Button Switch - Turn ON & OFF Lights with one or more buttons
 
