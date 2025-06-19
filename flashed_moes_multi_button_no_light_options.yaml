@@ -1,0 +1,136 @@
+blueprint:
+  name: Turn ON & OFF Lights (Multi Button - Press Trigger)
+  description: >
+    # ✳️ Button Switch - Turn ON & OFF Lights with one or more buttons
+
+    - Allows multiple toggle switches to control the same set of entities.
+    
+    - Automation triggers on the button state going from `released` → `press` (e.g. custom flashed Moe’s switches).
+    
+    - Toggles `main_entity` on/off.
+    
+    - Optionally toggles `alternating_entity` to the inverse of `main_entity`.
+    
+
+
+    - **IMPORTANT - Ensure that for each and every button that you want to function with this blueprint (referred to below as "toggle switch(es)"), you have the following settings enabled in Z2M:**
+    
+    (1) "switch mode" = "MOMENTARY"
+    
+    (2) "switch action mode" = "TOGGLE"
+
+
+
+
+    - **IMPORTANT - Ensure that for each LIGHT that you want to control with this blueprint, you have the following settings enabled in Z2M for the relay(s) that feed power to the light(s):**
+    
+    (1) "switch relay mode" = "DETACHED"
+    
+    (2) "state" = ON
+    
+    (3) "power-on behaviour" = ON
+
+  domain: automation
+
+  input:
+    toggle_switch:
+      name: Toggle Switch(es) *
+      description: One or more flashed Moe's buttons to control the lights. If you select more than one, each and every individual button will control the light(s).
+      selector:
+        entity:
+          domain: sensor
+          multiple: true
+
+    main_entity:
+      name: Light(s) *
+      description: Select the single or group light entity (or entities) that you want your button(s) to control simultaneously.
+      selector:
+        entity:
+          domain: light
+          multiple: true
+
+    alternating_entity:
+      name: LED Indicator(s)
+      description: Optional - Enable this to automatically sync LED indicator(s) to reflect the *opposite* state to that of the selected light(s). You must set the relay indicator mode for each of the corresponding toggle switch(es) to "manual" in Z2M in order for this part of the automation to function properly. See above instructions relating to `IMPORTANT`
+      default: []
+      selector:
+        entity:
+          domain: switch
+          multiple: true
+
+variables:
+  toggle_switch: !input toggle_switch
+  main_entity: !input main_entity
+  alternating_entity: !input alternating_entity
+
+trigger:
+  - platform: state
+    entity_id: !input toggle_switch
+    from: "released"
+    to: "press"
+
+action:
+  - service: system_log.write
+    data:
+      message: "Toggle switch pressed: {{ trigger.entity_id }}"
+      level: warning
+
+  - choose:
+      - alias: "If no alternating entity is set"
+        conditions:
+          - "{{ alternating_entity == [] }}"
+        sequence:
+          - choose:
+              - alias: "Any main entities are on → turn them off"
+                conditions:
+                  - condition: state
+                    entity_id: !input main_entity
+                    match: any
+                    state: 'on'
+                sequence:
+                  - service: homeassistant.turn_off
+                    target:
+                      entity_id: !input main_entity
+
+              - alias: "All main entities are off → turn them on"
+                conditions:
+                  - condition: state
+                    entity_id: !input main_entity
+                    match: all
+                    state: 'off'
+                sequence:
+                  - service: homeassistant.turn_on
+                    target:
+                      entity_id: !input main_entity
+
+    default:
+      - choose:
+          - alias: "Any main entities are on → turn off main, turn on alternating"
+            conditions:
+              - condition: state
+                entity_id: !input main_entity
+                match: any
+                state: 'on'
+            sequence:
+              - service: homeassistant.turn_off
+                target:
+                  entity_id: !input main_entity
+              - service: homeassistant.turn_on
+                target:
+                  entity_id: !input alternating_entity
+
+          - alias: "All main entities are off → turn on main, turn off alternating"
+            conditions:
+              - condition: state
+                entity_id: !input main_entity
+                match: all
+                state: 'off'
+            sequence:
+              - service: homeassistant.turn_on
+                target:
+                  entity_id: !input main_entity
+              - service: homeassistant.turn_off
+                target:
+                  entity_id: !input alternating_entity
+
+mode: single
