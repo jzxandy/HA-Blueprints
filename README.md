@@ -1,7 +1,7 @@
 Random place for me to upload blueprints that I've worked on out of necessity
 
 
-**Flashed Moe's detached mode blueprints:**
+**Detached mode blueprints for Moe's Zigbee light switches that are flashed with custom firmware - this custom firmware is available here https://github.com/romasku/tuya-zigbee-switch**
 
 
 *WITH LIGHT OPTIONS*
