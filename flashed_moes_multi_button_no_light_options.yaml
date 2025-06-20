@@ -1,33 +1,69 @@
 blueprint:
-  name: Custom Moe's Zigbee Switch - Detached Mode - Basic - NO Light Options
+  name: Custom Moe's Zigbee Switch - Detached Mode - Basic - NO Light Controls
+  author: jzxandy
   description: >
-    # ✳️ Button Switch - Turn ON & OFF Lights with one or more buttons
+    ## 🔘 Toggle Light(s) with Button(s) and Sync LED Indicator(s) - No light control options
 
-    - Allows multiple toggle switches to control the same set of entities.
 
-    - Triggers on `released` → `press` (e.g. flashed Moe’s Zigbee buttons).
-    
-    - Toggles `main_entity` on/off.
-    
-    - Optionally toggles `alternating_entity` to the inverse of `main_entity`.
-    
-    - ✅ Works well for momentary buttons that emit "press" events.
-    
-    - 🔁 Can be reused with different button groups for various lights.
+    Control lights using one or more momentary toggle buttons and have indicator LEDs synchronised with the opposite state. 
 
-    - **IMPORTANT - Ensure that for each button (referred to below as a toggle switch), you have the following settings enabled in Z2M for that particular button:**
-    
-    - "switch mode" = "MOMENTARY"
-    
-    - "switch action mode" = "TOGGLE"
 
-    - **IMPORTANT - Ensure that for each LIGHT that you want to control in this automation, you have the following settings enabled in Z2M for the relay or relays that feed power to the lights:**
-    
-    - "switch relay mode" = "DETACHED"
-    
-    - "state" = ON
-    
-    - "power-on behaviour" = ON
+
+    This blueprint does not supports optional brightness, transition or colour settings. There is a separate blueprint for that, but I have kept them separate for now in case there are issues with having those options present.
+
+    - 🔁 Triggered if any of the "Button Toggle(s)" change from **released → press** (applicable to custom flashed Moe's light switches).
+
+    - 💡 Toggles the `main_entity` (referred to below as "Light(s)") on/off.
+
+    - 🔄 Optionally toggles an `alternating_entity` (e.g. LED indicator(s) on light switch button, referred to below as the "LED Indicator(s)") to the *inverse* of the state of your selected light(s)
+
+    - ✅ Quick set-up, especially for applications where 3 or more buttons are intended to control the same light(s) and you want the LED Indicators on each button to be synced in some way.
+
+    - 🔄 Reusable across different button groups and lights.
+
+
+    [Info - contact - feedback](https://github.com/jzxandy/HA-Blueprints)
+
+
+
+    ### 🔧 Device Compatibility
+
+
+    This blueprint is made for use with Moe’s Zigbee switches flashed with custom firmware and makes automating light controls in detached mode easier. Compatible Moe's zigbee switch models include:  
+
+    - **TS0011** (1 gang)  
+
+    - **TS0012** (2 gang)  
+
+    - **TS0013** (3 gang)  
+
+
+    These are no-neutral Tuya Zigbee switches and should be readily available for purchase on AliExpress.
+
+   
+    You can obtain the custom firmware for these switches (and other Tuya devices) thanks to Romasku [here](https://github.com/romasku/tuya-zigbee-switch).
+
+
+    ### ⚙️ Zigbee2MQTT Setup Requirements:
+
+    **For each button (referred to below as "Button Toggle(s)"):**  
+
+    - `switch mode` - `MOMENTARY`  
+
+    - `switch action mode` - `TOGGLE`
+
+
+
+    **For each relay that you want to supply constant power to your light(s):**  
+
+
+
+    - `switch relay mode` - `DETACHED`  
+
+    - `state` - `ON`  
+
+    - `power-on behaviour` - `ON`
+
 
   domain: automation
 
