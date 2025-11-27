@@ -68,8 +68,6 @@ blueprint:
 
   domain: automation
 
-
-
   input:
     toggle_switch:
       name: Button Toggle(s) *
