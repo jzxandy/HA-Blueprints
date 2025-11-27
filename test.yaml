@@ -215,6 +215,7 @@ variables:
   light_rgb_colour: !input light_rgb_colour
   light_rgbw_colour: !input light_rgbw_colour
   light_rgbww_colour: !input light_rgbww_colour
+  toggle_switch: !input toggle_switch
 
   light_data: >
     {% set light = namespace(data={}) %}
