@@ -237,7 +237,7 @@ variables:
 
 trigger:
   - platform: state
-    entity_id: !input buttons_switches.toggle_switch
+    entity_id: !input toggle_switch
     from: "released"
     to: "press"
 
