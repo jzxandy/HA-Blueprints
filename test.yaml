@@ -69,7 +69,7 @@ blueprint:
   domain: automation
   input:
     buttons_switches:
-      name: "Button(s) that control the lights"
+      name: "Button(s) that you want to control your light(s)"
       icon: mdi:light-switch
       collapsed: true
       input:
@@ -81,7 +81,7 @@ blueprint:
               domain: sensor
               multiple: true
     lights:
-      name: "Lights that are to switch on/off"
+      name: "Light(s) that you want to control"
       icon: mdi:lightbulb-group
       collapsed: true
       input:
@@ -93,7 +93,7 @@ blueprint:
               domain: light
               multiple: true
     light_controls:
-      name: "Light Brightness/Colour/Transition Controls - OPTIONAL"
+      name: "Brightness/Colour/Transition Controls - OPTIONAL"
       icon: mdi:lightbulb-on-outline
       collapsed: true
       input:
