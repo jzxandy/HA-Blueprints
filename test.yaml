@@ -256,9 +256,13 @@ trigger:
 
 action:
   - choose:
-      # BUTTON PRESS
-      - conditions: "{{ trigger.entity_id == toggle_switch }}"
+      # OPTION 0: Button press trigger
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trigger.entity_id in expand(toggle_switch) | map(attribute='entity_id') | list }}
         sequence:
+          # Toggle lights based on current state
           - choose:
               - conditions: "{{ expand(main_entity) | selectattr('state', 'eq', 'on') | list | count > 0 }}"
                 sequence:
@@ -273,7 +277,7 @@ action:
                     target:
                       entity_id: !input main_entity
                     data: "{{ light_data }}"
-          # LEDs synced with light state
+          # Sync LEDs with lights if defined
           - choose:
               - conditions: "{{ alternating_entity != [] }}"
                 sequence:
@@ -286,22 +290,34 @@ action:
                     target:
                       entity_id: !input alternating_entity
 
-      # LIGHTS TURNED ON REMOTELY
-      - conditions: "{{ trigger.entity_id in expand(main_entity) | map(attribute='entity_id') | list and trigger.to_state.state == 'on' }}"
+      # OPTION 1: Remote lights turned ON
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trigger.entity_id in expand(main_entity) | map(attribute='entity_id') | list
+                 and trigger.to_state.state == 'on'
+                 and expand(toggle_switch) | selectattr('state','eq','press') | list | count == 0 }}
         sequence:
-          - choose:
-              - conditions: "{{ alternating_entity != [] }}"
-                sequence:
-                  - service: switch.turn_off
-                    target:
-                      entity_id: !input alternating_entity
-
-      # LIGHTS TURNED OFF REMOTELY
-      - conditions: "{{ trigger.entity_id in expand(main_entity) | map(attribute='entity_id') | list and trigger.to_state.state == 'off' }}"
-        sequence:
+          # Turn off LED indicators to match inverse of lights
           - choose:
               - conditions: "{{ alternating_entity != [] }}"
                 sequence:
                   - service: switch.turn_on
+                    target:
+                      entity_id: !input alternating_entity
+
+      # OPTION 2: Remote lights turned OFF
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trigger.entity_id in expand(main_entity) | map(attribute='entity_id') | list
+                 and trigger.to_state.state == 'off'
+                 and expand(toggle_switch) | selectattr('state','eq','press') | list | count == 0 }}
+        sequence:
+          # Turn on LED indicators to match inverse of lights
+          - choose:
+              - conditions: "{{ alternating_entity != [] }}"
+                sequence:
+                  - service: switch.turn_off
                     target:
                       entity_id: !input alternating_entity
