@@ -68,157 +68,159 @@ blueprint:
 
   domain: automation
 
+
+
   input:
-      ###################################################
-      # SECTION 1: DEFAULT ENTITIES
-      ###################################################
-      toggle_switch:
-        name: Button Toggle(s) *
-        description: One or more Moe's Zigbee "switch press" sensors.
-        selector:
-          entity:
-            domain: sensor
-            multiple: true
+    toggle_switch:
+      name: Button Toggle(s) *
+      description: >
+        Select one or more Moe's Zigbee "switch press" sensors.
+        Each button will toggle the Light(s).
+      selector:
+        entity:
+          domain: sensor
+          multiple: true
   
-      main_entity:
-        name: Light(s) *
-        description: Single light or group controlled by these buttons.
-        selector:
-          entity:
-            domain: light
-            multiple: true
+    main_entity:
+      name: Light(s) *
+      description: >
+        Single light or group of lights controlled by these buttons.
+      selector:
+        entity:
+          domain: light
+          multiple: true
   
-      alternating_entity:
-        name: LED Indicator(s)
-        description: Optional - mirrors opposite state of the light(s).
-        default: []
-        selector:
-          entity:
-            domain: switch
-            multiple: true
+    alternating_entity:
+      name: LED Indicator(s)
+      description: >
+        Optional — switch LED indicator entities that will mirror the
+        opposite state of the light(s). These MUST be configured to
+        LED indicator "manual" mode in Zigbee2MQTT to function correctly.
+      default: []
+      selector:
+        entity:
+          domain: switch
+          multiple: true
   
-      ###################################################
-      # SECTION 2: LIGHT CONTROL OPTIONS (COLLAPSIBLE)
-      ###################################################
-      show_light_control_options:
-        name: Show Light Control Options
-        description: Tick to reveal brightness/transition options
-        default: false
-        selector:
-          boolean: {}
+    ####################################
+    # LIGHT BEHAVIOUR OPTIONS
+    ####################################
   
-      use_brightness:
-        name: Use Brightness
-        description: Set brightness when turning on
-        default: false
-        visible: "{{ show_light_control_options }}"
-        selector:
-          boolean: {}
+    include_light_control:
+      name: Light Behaviour
+      description: >
+        Select enhancements applied when turning ON via button.
+        None = toggle normal.
+      selector:
+        select:
+          multiple: true
+          options:
+            - label: Set Brightness
+              value: use_brightness
+            - label: Use Transition
+              value: use_transition
+      default: []
   
-      light_brightness:
-        name: Brightness (%)
-        default: 100
-        visible: "{{ show_light_control_options and use_brightness }}"
-        selector:
-          number:
-            min: 1
-            max: 100
-            step: 1
-            unit_of_measurement: '%'
-            mode: slider
+    light_brightness:
+      name: Brightness (%)
+      description: >
+        Applied ONLY when turning ON via button press.
+      default: 100
+      visible: "{{ 'use_brightness' in include_light_control }}"
+      selector:
+        number:
+          min: 1
+          max: 100
+          step: 1
+          unit_of_measurement: '%'
+          mode: slider
   
-      use_transition:
-        name: Use Transition
-        description: Fade in/out duration
-        default: false
-        visible: "{{ show_light_control_options }}"
-        selector:
-          boolean: {}
+    light_transition_on:
+      name: Transition — Turn On (s)
+      description: >
+        Fade-in animation duration. If not enabled, lights turn on instantly.
+      default: 1
+      visible: "{{ 'use_transition' in include_light_control }}"
+      selector:
+        number:
+          min: 0
+          max: 10
+          step: 0.5
+          unit_of_measurement: 's'
+          mode: slider
   
-      light_transition_on:
-        name: Transition On (s)
-        default: 1
-        visible: "{{ show_light_control_options and use_transition }}"
-        selector:
-          number:
-            min: 0
-            max: 10
-            step: 0.5
-            unit_of_measurement: 's'
-            mode: slider
+    light_transition_off:
+      name: Transition — Turn Off (s)
+      description: >
+        Fade-out animation duration when turning OFF via button.
+      default: 1
+      visible: "{{ 'use_transition' in include_light_control }}"
+      selector:
+        number:
+          min: 0
+          max: 30
+          step: 1
+          unit_of_measurement: 's'
+          mode: slider
   
-      light_transition_off:
-        name: Transition Off (s)
-        default: 1
-        visible: "{{ show_light_control_options and use_transition }}"
-        selector:
-          number:
-            min: 0
-            max: 30
-            step: 1
-            unit_of_measurement: 's'
-            mode: slider
+    ####################################
+    # COLOUR OPTIONS (SMART VISIBILITY)
+    ####################################
   
-      ###################################################
-      # SECTION 3: LIGHT COLOUR OPTIONS (COLLAPSIBLE)
-      ###################################################
-      show_light_colour_options:
-        name: Show Light Colour Options
-        description: Tick to reveal colour options
-        default: false
-        selector:
-          boolean: {}
+    include_light_colour_control:
+      name: Colour Mode
+      description: Optional adjustments when turning ON.
+      default: disable_colour_control
+      selector:
+        select:
+          options:
+            - label: Colour Temperature
+              value: use_colour_temperature
+            - label: RGB Colour
+              value: use_rgb_colour
+            - label: RGBW Colour (colour + white)
+              value: use_rgbw_colour
+            - label: RGBWW Colour (colour + warm & cool white)
+              value: use_rgbww_colour
+            - label: Disable Colour Control
+              value: disable_colour_control
   
-      include_light_colour_control:
-        name: Colour Mode
-        default: disable_colour_control
-        visible: "{{ show_light_colour_options }}"
-        selector:
-          select:
-            options:
-              - label: Colour Temperature
-                value: use_colour_temperature
-              - label: RGB Colour
-                value: use_rgb_colour
-              - label: RGBW Colour
-                value: use_rgbw_colour
-              - label: RGBWW Colour
-                value: use_rgbww_colour
-              - label: Disable Colour Control
-                value: disable_colour_control
+    light_colour_temperature:
+      name: Colour Temperature (Kelvin)
+      description: Warm to cool white
+      default: 5000
+      visible: "{{ include_light_colour_control == 'use_colour_temperature' }}"
+      selector:
+        number:
+          min: 2000
+          max: 8000
+          step: 100
+          unit_of_measurement: 'K'
+          mode: slider
   
-      light_colour_temperature:
-        name: Colour Temperature (K)
-        default: 5000
-        visible: "{{ show_light_colour_options and include_light_colour_control == 'use_colour_temperature' }}"
-        selector:
-          number:
-            min: 2000
-            max: 8000
-            step: 100
-            unit_of_measurement: 'K'
-            mode: slider
+    light_rgb_colour:
+      name: RGB Colour
+      description: Pick a solid colour.
+      default: [255, 255, 255]
+      visible: "{{ include_light_colour_control == 'use_rgb_colour' }}"
+      selector:
+        color_rgb:
   
-      light_rgb_colour:
-        name: RGB Colour
-        default: [255, 255, 255]
-        visible: "{{ show_light_colour_options and include_light_colour_control == 'use_rgb_colour' }}"
-        selector:
-          color_rgb: {}
+    light_rgbw_colour:
+      name: RGBW Colour
+      description: Red, Green, Blue + single white
+      visible: "{{ include_light_colour_control == 'use_rgbw_colour' }}"
+      default: [255, 255, 255, 255]
+      selector:
+        object:
   
-      light_rgbw_colour:
-        name: RGBW Colour
-        default: [255, 255, 255, 255]
-        visible: "{{ show_light_colour_options and include_light_colour_control == 'use_rgbw_colour' }}"
-        selector:
-          object: {}
-  
-      light_rgbww_colour:
-        name: RGBWW Colour
-        default: [255, 255, 255, 255, 255]
-        visible: "{{ show_light_colour_options and include_light_colour_control == 'use_rgbww_colour' }}"
-        selector:
-          object: {}
+    light_rgbww_colour:
+      name: RGBWW Colour
+      description: Red, Green, Blue + warm & cool white
+      visible: "{{ include_light_colour_control == 'use_rgbww_colour' }}"
+      default: [255, 255, 255, 255, 255]
+      selector:
+        object:
 
 mode: single
 
