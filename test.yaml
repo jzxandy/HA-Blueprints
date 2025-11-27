@@ -1,7 +1,7 @@
 blueprint:
   name: Flashed Moe's Zigbee Switch - Detached Mode - Extended - WITH Light Options
   author: jzxandy
-  description: >
+  description: |
     ## 🔘 Toggle Light(s) with Button(s) and Sync LED Indicator(s)
 
 
