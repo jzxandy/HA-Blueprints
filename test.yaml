@@ -243,7 +243,7 @@ trigger:
 
   # Light state changes (for LED sync)
   - platform: state
-    entity_id: !input lights.main_entity
+    entity_id: !input main_entity
 
 action:
   - choose:
