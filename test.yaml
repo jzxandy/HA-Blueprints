@@ -67,7 +67,6 @@ blueprint:
     - `Power-on behavior (Endpoint: relay_x)` - `ON`
 
   domain: automation
-
   input:
     buttons_switches:
       name: "Buttons / Switches *"
@@ -280,22 +279,8 @@ action:
             sequence:
               - service: light.turn_on
                 target:
-                  entity_id: !input main_entity
+                  entity_id: main_entity
                 data: "{{ light_data }}"
               - service: switch.turn_off
                 target:
                   entity_id: !input alternating_entity
-      # If the trigger was a light state change (e.g., remote, automation)
-      - conditions: "{{ trigger.entity_id in expand(main_entity) | map(attribute='entity_id') | list }}"
-        sequence:
-          - choose:
-              - conditions: "{{ expand(main_entity) | selectattr('state', 'eq', 'on') | list | count > 0 }}"
-                sequence:
-                  - service: switch.turn_off  # LEDs off when lights ON
-                    target:
-                      entity_id: alternating_entity
-              - conditions: "{{ expand(main_entity) | selectattr('state', 'eq', 'off') | list | count == expand(main_entity) | list | count }}"
-                sequence:
-                  - service: switch.turn_on   # LEDs on when lights OFF
-                    target:
-                      entity_id: alternating_entity
