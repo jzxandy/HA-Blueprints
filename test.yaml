@@ -1,7 +1,7 @@
 blueprint:
   name: Flashed Moe's Zigbee Switch - Detached Mode - Extended - WITH Light Options
   author: jzxandy
-  description: |
+  description: >
     ## 🔘 Toggle Light(s) with Button(s) and Sync LED Indicator(s)
 
 
@@ -71,154 +71,128 @@ blueprint:
   input:
     toggle_switch:
       name: Button Toggle(s) *
-      description: >
-        Select one or more Moe's Zigbee "switch press" sensors.
-        Each button will toggle the Light(s).
+      icon: mdi:gesture-tap-button
+      collapsed: false
+      description: One or more flashed Moe's "switch press action switch" entity to control the lights. If you select more than one, each and every individual button in this list will control the light(s).
       selector:
         entity:
           domain: sensor
           multiple: true
-  
+
     main_entity:
       name: Light(s) *
-      description: >
-        Single light or group of lights controlled by these buttons.
+      icon: mdi:lightbulb-group
+      collapsed: true
+      description: Select the single or group light entity (or entities) that you want your button(s) to control simultaneously.
       selector:
         entity:
           domain: light
           multiple: true
-  
+
+    include_light_control:
+      name: Light Controls
+      icon: mdi:lightbulb-on-outline
+      collapsed: true
+      description: Optional - Tick as applicable.
+      default: []
+      selector:
+        select:
+          multiple: true
+          options:
+            - label: Use Brightness
+              value: use_brightness
+            - label: Use Transition
+              value: use_transition
+      light_brightness:
+        name: Brightness (%)
+        description: This brightness will be applied when the light is turned on by one or more button toggles.
+        default: 100
+        selector:
+          number:
+            min: 1
+            max: 100
+            step: 1
+            unit_of_measurement: '%'
+            mode: slider
+      light_transition_on:
+        name: Transition On (s)
+        description: Duration for the light(s) to go from "off" to maximum brightness.
+        default: 1
+        selector:
+          number:
+            min: 0
+            max: 10
+            step: 0.5
+            unit_of_measurement: 's'
+            mode: slider
+      light_transition_off:
+        name: Transition Off (s)
+        description: Duration for the light(s) to fully dim.
+        default: 1
+        selector:
+          number:
+            min: 0
+            max: 30
+            step: 1
+            unit_of_measurement: 's'
+            mode: slider
+      include_light_colour_control:
+        name: Light Colour Options
+        description: Optional. Colour temperature for white channel(s) only. RGB for coloured channel(s) only. RGBW for colours and ONE white channel. RGBWW for colours, warm white and cool white.
+        default: disable_colour_control
+        selector:
+          select:
+            options:
+              - label: Use Colour Temperature
+                value: use_colour_temperature
+              - label: Use RGB Colour
+                value: use_rgb_colour
+              - label: Use RGBW Colour
+                value: use_rgbw_colour
+              - label: Use RGBWW Colour
+                value: use_rgbww_colour
+              - label: Disable Colour Control
+                value: disable_colour_control
+      light_colour_temperature:
+        name: Colour Temperature (Kelvin)
+        description: Only works when "Use Colour Temperature" is selected.
+        default: 5000
+        selector:
+          number:
+            min: 2000
+            max: 8000
+            step: 100
+            unit_of_measurement: 'K'
+            mode: slider
+      light_rgb_colour:
+        name: RGB Colour
+        description: Only works when "Use RGB Colour" is selected.
+        default: [255, 255, 255]
+        selector:
+          color_rgb:
+      light_rgbw_colour:
+        name: RGBW Colour
+        description: Only works when "Use RGBW Colour" is selected.
+        default: [255, 255, 255, 255]
+        selector:
+          object:
+      light_rgbww_colour:
+        name: RGBWW Colour
+        description: Only works when "Use RGBWW Colour" is selected.
+        default: [255, 255, 255, 255, 255]
+        selector:
+          object:
+
     alternating_entity:
       name: LED Indicator(s)
-      description: >
-        Optional — switch LED indicator entities that will mirror the
-        opposite state of the light(s). These MUST be configured to
-        LED indicator "manual" mode in Zigbee2MQTT to function correctly.
+      icon: mdi:led-on
+      collapsed: true
+      description: Optional - Enable this to automatically sync LED indicator(s) to reflect the *opposite* state to that of the selected light(s). You must set the relay indicator mode for each of the corresponding toggle switch(es) to "manual" in Z2M in order for this part of the automation to function properly. See above instructions relating to `IMPORTANT`.
       default: []
       selector:
         entity:
           domain: switch
           multiple: true
-  
-    ####################################
-    # LIGHT BEHAVIOUR OPTIONS
-    ####################################
-  
-    include_light_control:
-      name: Light Behaviour
-      description: >
-        Select enhancements applied when turning ON via button.
-        None = toggle normal.
-      selector:
-        select:
-          multiple: true
-          options:
-            - label: Set Brightness
-              value: use_brightness
-            - label: Use Transition
-              value: use_transition
-      default: []
-  
-    light_brightness:
-      name: Brightness (%)
-      description: >
-        Applied ONLY when turning ON via button press.
-      default: 100
-      visible: "{{ 'use_brightness' in include_light_control }}"
-      selector:
-        number:
-          min: 1
-          max: 100
-          step: 1
-          unit_of_measurement: '%'
-          mode: slider
-  
-    light_transition_on:
-      name: Transition — Turn On (s)
-      description: >
-        Fade-in animation duration. If not enabled, lights turn on instantly.
-      default: 1
-      visible: "{{ 'use_transition' in include_light_control }}"
-      selector:
-        number:
-          min: 0
-          max: 10
-          step: 0.5
-          unit_of_measurement: 's'
-          mode: slider
-  
-    light_transition_off:
-      name: Transition — Turn Off (s)
-      description: >
-        Fade-out animation duration when turning OFF via button.
-      default: 1
-      visible: "{{ 'use_transition' in include_light_control }}"
-      selector:
-        number:
-          min: 0
-          max: 30
-          step: 1
-          unit_of_measurement: 's'
-          mode: slider
-  
-    ####################################
-    # COLOUR OPTIONS (SMART VISIBILITY)
-    ####################################
-  
-    include_light_colour_control:
-      name: Colour Mode
-      description: Optional adjustments when turning ON.
-      default: disable_colour_control
-      selector:
-        select:
-          options:
-            - label: Colour Temperature
-              value: use_colour_temperature
-            - label: RGB Colour
-              value: use_rgb_colour
-            - label: RGBW Colour (colour + white)
-              value: use_rgbw_colour
-            - label: RGBWW Colour (colour + warm & cool white)
-              value: use_rgbww_colour
-            - label: Disable Colour Control
-              value: disable_colour_control
-  
-    light_colour_temperature:
-      name: Colour Temperature (Kelvin)
-      description: Warm to cool white
-      default: 5000
-      visible: "{{ include_light_colour_control == 'use_colour_temperature' }}"
-      selector:
-        number:
-          min: 2000
-          max: 8000
-          step: 100
-          unit_of_measurement: 'K'
-          mode: slider
-  
-    light_rgb_colour:
-      name: RGB Colour
-      description: Pick a solid colour.
-      default: [255, 255, 255]
-      visible: "{{ include_light_colour_control == 'use_rgb_colour' }}"
-      selector:
-        color_rgb:
-  
-    light_rgbw_colour:
-      name: RGBW Colour
-      description: Red, Green, Blue + single white
-      visible: "{{ include_light_colour_control == 'use_rgbw_colour' }}"
-      default: [255, 255, 255, 255]
-      selector:
-        object:
-  
-    light_rgbww_colour:
-      name: RGBWW Colour
-      description: Red, Green, Blue + warm & cool white
-      visible: "{{ include_light_colour_control == 'use_rgbww_colour' }}"
-      default: [255, 255, 255, 255, 255]
-      selector:
-        object:
 
 mode: single
 
@@ -255,67 +229,47 @@ variables:
     {{ light.data }}
 
 trigger:
-  # Physical button press
   - platform: state
     entity_id: !input toggle_switch
     from: "released"
     to: "press"
 
-  # Light(s) switched by UI / automation / voice / etc
-  - platform: state
-    entity_id: !input main_entity
-
-
 action:
   - choose:
-      # CASE 1: Trigger = button press
-      - conditions: "{{ trigger.platform == 'state' and trigger.from_state.state == 'released' and trigger.to_state.state == 'press' }}"
+      - conditions: "{{ alternating_entity == [] }}"
         sequence:
           - choose:
-              - conditions: "{{ alternating_entity == [] }}"
+              - conditions: "{{ expand(main_entity) | selectattr('state', 'eq', 'on') | list | count > 0 }}"
                 sequence:
-                  - choose:
-                      - conditions: "{{ expand(main_entity) | selectattr('state', 'eq', 'on') | list | count > 0 }}"
-                        sequence:
-                          - service: light.turn_off
-                            target:
-                              entity_id: !input main_entity
-                            data:
-                              transition: "{{ light_transition_off if 'use_transition' in include_light_control else 0 }}"
-                      - conditions: "{{ expand(main_entity) | selectattr('state', 'eq', 'off') | list | count == expand(main_entity) | list | count }}"
-                        sequence:
-                          - service: light.turn_on
-                            target:
-                              entity_id: !input main_entity
-                            data: "{{ light_data }}"
-          - choose:
-              - conditions: "{{ alternating_entity != [] }}"
+                  - service: light.turn_off
+                    target:
+                      entity_id: !input main_entity
+                    data:
+                      transition: "{{ light_transition_off if 'use_transition' in include_light_control else 0 }}"
+              - conditions: "{{ expand(main_entity) | selectattr('state', 'eq', 'off') | list | count == expand(main_entity) | list | count }}"
                 sequence:
-                  - choose:
-                      - conditions: "{{ expand(main_entity) | selectattr('state', 'eq', 'on') | list | count > 0 }}"
-                        sequence:
-                          - service: switch.turn_on
-                            target:
-                              entity_id: !input alternating_entity
-                      - conditions: "{{ expand(main_entity) | selectattr('state', 'eq', 'off') | list | count == expand(main_entity) | list | count }}"
-                        sequence:
-                          - service: switch.turn_off
-                            target:
-                              entity_id: !input alternating_entity
-
-      # CASE 2: Trigger = light changed elsewhere (UI, automation, etc.)
+                  - service: light.turn_on
+                    target:
+                      entity_id: !input main_entity
+                    data: "{{ light_data }}"
     default:
       - choose:
-          - conditions: "{{ alternating_entity != [] }}"
+          - conditions: "{{ expand(main_entity) | selectattr('state', 'eq', 'on') | list | count > 0 }}"
             sequence:
-              - choose:
-                  - conditions: "{{ expand(main_entity) | selectattr('state', 'eq', 'on') | list | count > 0 }}"
-                    sequence:
-                      - service: switch.turn_on
-                        target:
-                          entity_id: !input alternating_entity
-                  - conditions: "{{ expand(main_entity) | selectattr('state', 'eq', 'off') | list | count == expand(main_entity) | list | count }}"
-                    sequence:
-                      - service: switch.turn_off
-                        target:
-                          entity_id: !input alternating_entity
+              - service: light.turn_off
+                target:
+                  entity_id: !input main_entity
+                data:
+                  transition: "{{ light_transition_off if 'use_transition' in include_light_control else 0 }}"
+              - service: switch.turn_on
+                target:
+                  entity_id: !input alternating_entity
+          - conditions: "{{ expand(main_entity) | selectattr('state', 'eq', 'off') | list | count == expand(main_entity) | list | count }}"
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: !input main_entity
+                data: "{{ light_data }}"
+              - service: switch.turn_off
+                target:
+                  entity_id: !input alternating_entity
