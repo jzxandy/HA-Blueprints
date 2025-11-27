@@ -73,6 +73,7 @@ blueprint:
       name: "Buttons / Switches *"
       icon: mdi:light-switch
       collapsed: true
+      input:
         toggle_switch:
           name: Button Toggle(s) *
           description: One or more flashed Moe's "switch press action switch" entity to control the lights. Each button in this list will control the light(s).
@@ -80,11 +81,11 @@ blueprint:
             entity:
               domain: sensor
               multiple: true
-
     lights:
       name: "Lights *"
       icon: mdi:lightbulb-group
       collapsed: true
+      input:
         main_entity:
           name: Light(s) *
           description: Select the single or group light entity (or entities) that you want your button(s) to control simultaneously.
@@ -92,11 +93,11 @@ blueprint:
             entity:
               domain: light
               multiple: true
-
     light_controls:
       name: "Light Controls"
       icon: mdi:lightbulb-on-outline
       collapsed: true
+      input:
         include_light_control:
           name: Light Control Options
           description: Optional - Tick as applicable.
@@ -188,11 +189,11 @@ blueprint:
           default: [255, 255, 255, 255, 255]
           selector:
             object:
-
     led_indicators:
       name: "LED Indicators"
       icon: mdi:led-on
       collapsed: true
+      input:
         alternating_entity:
           name: LED Indicator(s)
           description: Optional - Automatically sync LED indicator(s) to reflect the opposite state of your light(s).
