@@ -1,3 +1,73 @@
+blueprint:
+  name: Flashed Moe's Zigbee Switch - Detached Mode - Extended - WITH Light Options
+  author: jzxandy
+  description: >
+    ## 🔘 Toggle Light(s) with Button(s) and Sync LED Indicator(s)
+
+
+    Control lights using one or more momentary toggle buttons and have indicator LEDs synchronised with the opposite state.  
+
+
+
+    This blueprint supports optional settings to dial in specific brightness, transition (on and off), and RGB/RGBW/RGBWW colours for your light(s).
+
+    - 🔁 Triggered if any of the "Button Toggle(s)" change from **released → press** (applicable to custom flashed Moe's light switches).
+
+    - 💡 Toggles the `main_entity` (referred to below as "Light(s)") on/off.
+
+    - 🔄 Optionally toggles an `alternating_entity` (e.g. LED indicator(s) on light switch button, referred to below as the "LED Indicator(s)") to the *inverse* of the state of your selected light(s)
+
+    - ✅ Quick set-up, especially for applications where 3 or more buttons are intended to control the same light(s) and you want the LED Indicators on each button to be synced in some way.
+
+    - 🔄 Reusable across different button groups and lights.
+
+
+    [Info - contact - feedback](https://github.com/jzxandy/HA-Blueprints)
+
+
+
+    ### 🔧 Device Compatibility
+
+
+    This blueprint is made for use with Moe’s Zigbee switches flashed with custom firmware and makes automating light controls in detached mode easier. Compatible Moe's zigbee switch models include:  
+
+    - **TS0011** (1 gang - OTA FLASH COMPATIBLE)  
+
+    - **TS0012** (2 gang - OTA FLASH COMPATIBLE)  
+
+    - **TS0013** (3 gang - OTA FLASH COMPATIBLE)  
+
+    - **TS0014** (4-gang - REQUIRES HARDWARE FLASHER)  
+
+
+    These are no-neutral Tuya Zigbee switches and should be readily available for purchase on AliExpress.
+
+   
+    You can obtain the custom firmware for these switches (and other Tuya devices) thanks to Romasku [here](https://github.com/romasku/tuya-zigbee-switch).
+
+
+    ### ⚙️ Zigbee2MQTT Setup Requirements:
+
+    **For each button (referred to below as "Button Toggle(s)"):**  
+
+    - `Switch x mode (Endpoint: switch_x)` - `MOMENTARY`  
+
+    - `Switch x action mode (Endpoint: switch_x)` - `TOGGLE_SIMPLE`
+
+
+
+    **For each relay that you want to supply constant power to your light(s):**  
+
+
+
+    - `Switch x relay mode (Endpoint: switch_x)` - `LONG_PRESS` - (this allows you to manually toggle the relay in question, by long-pressing the corresponding physical button)
+
+    - `State (Endpoint: relay_x)` - `ON`  
+
+    - `Power-on behavior (Endpoint: relay_x)` - `ON`
+
+  domain: automation
+
 input:
   toggle_switch:
     name: Button Toggle(s) *
@@ -149,3 +219,83 @@ input:
     default: [255, 255, 255, 255, 255]
     selector:
       object:
+
+mode: single
+
+variables:
+  main_entity: !input main_entity
+  alternating_entity: !input alternating_entity
+  include_light_control: !input include_light_control
+  light_brightness: !input light_brightness
+  light_transition_on: !input light_transition_on
+  light_transition_off: !input light_transition_off
+  include_light_colour_control: !input include_light_colour_control
+  light_colour_temperature: !input light_colour_temperature
+  light_rgb_colour: !input light_rgb_colour
+  light_rgbw_colour: !input light_rgbw_colour
+  light_rgbww_colour: !input light_rgbww_colour
+
+  light_data: >
+    {% set light = namespace(data={}) %}
+    {% if 'use_transition' in include_light_control %}
+      {% set light.data = dict(light.data, transition=light_transition_on) %}
+    {% endif %}
+    {% if 'use_brightness' in include_light_control %}
+      {% set light.data = dict(light.data, brightness_pct=light_brightness) %}
+    {% endif %}
+    {% if include_light_colour_control == 'use_colour_temperature' %}
+      {% set light.data = dict(light.data, color_temp_kelvin=light_colour_temperature) %}
+    {% elif include_light_colour_control == 'use_rgb_colour' %}
+      {% set light.data = dict(light.data, rgb_color=light_rgb_colour) %}
+    {% elif include_light_colour_control == 'use_rgbw_colour' %}
+      {% set light.data = dict(light.data, rgbw_color=light_rgbw_colour) %}
+    {% elif include_light_colour_control == 'use_rgbww_colour' %}
+      {% set light.data = dict(light.data, rgbww_color=light_rgbww_colour) %}
+    {% endif %}
+    {{ light.data }}
+
+trigger:
+  - platform: state
+    entity_id: !input toggle_switch
+    from: "released"
+    to: "press"
+
+action:
+  - choose:
+      - conditions: "{{ alternating_entity == [] }}"
+        sequence:
+          - choose:
+              - conditions: "{{ expand(main_entity) | selectattr('state', 'eq', 'on') | list | count > 0 }}"
+                sequence:
+                  - service: light.turn_off
+                    target:
+                      entity_id: !input main_entity
+                    data:
+                      transition: "{{ light_transition_off if 'use_transition' in include_light_control else 0 }}"
+              - conditions: "{{ expand(main_entity) | selectattr('state', 'eq', 'off') | list | count == expand(main_entity) | list | count }}"
+                sequence:
+                  - service: light.turn_on
+                    target:
+                      entity_id: !input main_entity
+                    data: "{{ light_data }}"
+    default:
+      - choose:
+          - conditions: "{{ expand(main_entity) | selectattr('state', 'eq', 'on') | list | count > 0 }}"
+            sequence:
+              - service: light.turn_off
+                target:
+                  entity_id: !input main_entity
+                data:
+                  transition: "{{ light_transition_off if 'use_transition' in include_light_control else 0 }}"
+              - service: switch.turn_on
+                target:
+                  entity_id: !input alternating_entity
+          - conditions: "{{ expand(main_entity) | selectattr('state', 'eq', 'off') | list | count == expand(main_entity) | list | count }}"
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: !input main_entity
+                data: "{{ light_data }}"
+              - service: switch.turn_off
+                target:
+                  entity_id: !input alternating_entity
