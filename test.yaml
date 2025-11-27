@@ -273,7 +273,7 @@ action:
                     target:
                       entity_id: !input main_entity
                     data: "{{ light_data }}"
-          # Toggle LEDs along with lights if defined
+          # LEDs synced with light state
           - choose:
               - conditions: "{{ alternating_entity != [] }}"
                 sequence:
