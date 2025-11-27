@@ -215,7 +215,6 @@ variables:
   light_rgb_colour: !input light_rgb_colour
   light_rgbw_colour: !input light_rgbw_colour
   light_rgbww_colour: !input light_rgbww_colour
-  toggle_switch: !input toggle_switch
 
   light_data: >
     {% set light = namespace(data={}) %}
@@ -241,10 +240,6 @@ trigger:
     entity_id: !input toggle_switch
     from: "released"
     to: "press"
-
-  # Light state changes (for LED sync)
-  - platform: state
-    entity_id: !input main_entity
 
 action:
   - choose:
@@ -280,7 +275,7 @@ action:
             sequence:
               - service: light.turn_on
                 target:
-                  entity_id: main_entity
+                  entity_id: !input main_entity
                 data: "{{ light_data }}"
               - service: switch.turn_off
                 target:
