@@ -260,7 +260,7 @@ action:
       - conditions:
           - condition: template
             value_template: >
-              {{ trigger.entity_id in expand(toggle_switch) | map(attribute='entity_id') | list }}
+              {{ trigger.entity_id in expand(buttons_switches.toggle_switch) | map(attribute='entity_id') | list }}
         sequence:
           # Toggle lights based on current state
           - choose:
