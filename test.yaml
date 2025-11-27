@@ -79,7 +79,7 @@ blueprint:
           selector:
             entity:
               domain: sensor
-              #multiple: true
+              multiple: true
     lights:
       name: "Lights *"
       icon: mdi:lightbulb-group
