@@ -69,37 +69,37 @@ blueprint:
   domain: automation
   input:
     buttons_switches:
-      name: "Buttons / Switches *"
+      name: "Button(s) that control the lights"
       icon: mdi:light-switch
       collapsed: true
       input:
         toggle_switch:
-          name: Button Toggle(s) *
+          name: Button(s)
           description: One or more flashed Moe's "switch press action switch" entity to control the lights. Each button in this list will control the light(s).
           selector:
             entity:
               domain: sensor
               multiple: true
     lights:
-      name: "Lights *"
+      name: "Lights that are to switch on/off"
       icon: mdi:lightbulb-group
       collapsed: true
       input:
         main_entity:
-          name: Light(s) *
+          name: Light(s)
           description: Select the single or group light entity (or entities) that you want your button(s) to control simultaneously.
           selector:
             entity:
               domain: light
               multiple: true
     light_controls:
-      name: "Light Controls"
+      name: "Light Brightness/Colour/Transition Controls - OPTIONAL"
       icon: mdi:lightbulb-on-outline
       collapsed: true
       input:
         include_light_control:
           name: Light Control Options
-          description: Optional - Tick as applicable.
+          description: Tick as applicable.
           default: []
           selector:
             select:
@@ -144,7 +144,7 @@ blueprint:
               mode: slider
         include_light_colour_control:
           name: Light Colour Options
-          description: Optional - Colour temp for white, RGB for colours, RGBW or RGBWW for multiple channels.
+          description: Colour temperature for white light only, RGB for colours, RGBW or RGBWW for multiple colour/white channels.
           default: disable_colour_control
           selector:
             select:
@@ -189,7 +189,7 @@ blueprint:
           selector:
             object:
     led_indicators:
-      name: "LED Indicators"
+      name: "Switch Button LED Indicator(s) - OPTIONAL"
       icon: mdi:led-on
       collapsed: true
       input:
