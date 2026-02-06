@@ -77,11 +77,10 @@ blueprint:
           multiple: true
 
     main_entity:
-      name: Relay *
+      name: Relay or Helper *
       description: Select the relay your button(s) will control.
       selector:
         entity:
-          domain: switch
           multiple: false
 
     alternating_entity:
