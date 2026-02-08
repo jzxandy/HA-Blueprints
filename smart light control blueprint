@@ -1,0 +1,80 @@
+blueprint:
+  name: Toggle Helper with LED Feedback
+  description: >
+    Toggle a helper entity with a button press or when the state of lights change.
+    Switch LED backlighting reflects the opposite state of the lights themselves.
+  domain: automation
+
+  input:
+    toggle_switch:
+      name: Toggle Switch(es)
+      description: One or more switches (e.g., Zigbee buttons) that control the helper.
+      selector:
+        entity:
+          domain: sensor
+          multiple: true
+
+    main_entity:
+      name: Light(s)
+      description: Select the light(s) whose state drives the LED indicators.
+      selector:
+        entity:
+          domain: light
+          multiple: true
+
+    helper_entity:
+      name: Toggle Helper
+      description: The input_boolean (or other toggle helper) to flip on button press or light state changes.
+      selector:
+        entity:
+          domain: input_boolean
+
+    alternating_entity:
+      name: LED Indicator(s)
+      description: Optional switches to indicate the opposite state of the lights.
+      default: []
+      selector:
+        entity:
+          domain: switch
+          multiple: true
+
+trigger:
+  # Trigger on button press
+  - platform: state
+    entity_id: !input toggle_switch
+    from: "released"
+    to: "press"
+
+  # Trigger on light state change
+  - platform: state
+    entity_id: !input main_entity
+
+action:
+  # Toggle the helper
+  - service: input_boolean.toggle
+    target:
+      entity_id: !input helper_entity
+
+  # Update LED indicators to be opposite of light state
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: !input main_entity
+            state: 'on'
+            match: any
+        sequence:
+          - service: switch.turn_off
+            target:
+              entity_id: !input alternating_entity
+
+      - conditions:
+          - condition: state
+            entity_id: !input main_entity
+            state: 'off'
+            match: all
+        sequence:
+          - service: switch.turn_on
+            target:
+              entity_id: !input alternating_entity
+
+mode: single
