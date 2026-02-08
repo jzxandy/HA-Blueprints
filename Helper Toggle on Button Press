@@ -1,0 +1,30 @@
+blueprint:
+  name: Helper Toggle on Button Press
+  description: Toggle a helper when one or more buttons are pressed
+  domain: automation
+  input:
+    button_entities:
+      name: Buttons
+      description: One or more buttons to trigger the helper toggle
+      selector:
+        entity:
+          domain: sensor
+          multiple: true
+    helper_entity:
+      name: Helper
+      description: Input boolean to toggle
+      selector:
+        entity:
+          domain: input_boolean
+
+trigger:
+  - platform: state
+    entity_id: !input button_entities
+    to: "press"
+
+action:
+  - service: input_boolean.toggle
+    target:
+      entity_id: !input helper_entity
+
+mode: single
