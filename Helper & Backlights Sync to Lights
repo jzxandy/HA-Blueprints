@@ -1,0 +1,75 @@
+blueprint:
+  name: Helper & Backlights Sync to Lights
+  description: Sync a helper with lights and update LED indicators
+  domain: automation
+  input:
+    main_lights:
+      name: Lights
+      description: One or more lights to read
+      selector:
+        entity:
+          domain: light
+          multiple: true
+    helper_entity:
+      name: Helper
+      description: Input boolean to sync with lights
+      selector:
+        entity:
+          domain: input_boolean
+    led_entities:
+      name: LED Indicators
+      description: Switches to reflect opposite of lights
+      default: []
+      selector:
+        entity:
+          domain: switch
+          multiple: true
+
+trigger:
+  - platform: state
+    entity_id: !input main_lights
+
+action:
+  # Sync helper to match lights
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: !input main_lights
+            match: any
+            state: 'on'
+        sequence:
+          - service: input_boolean.turn_on
+            target:
+              entity_id: !input helper_entity
+      - conditions:
+          - condition: state
+            entity_id: !input main_lights
+            match: all
+            state: 'off'
+        sequence:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: !input helper_entity
+
+  # Update LEDs opposite of lights
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: !input main_lights
+            match: any
+            state: 'on'
+        sequence:
+          - service: switch.turn_off
+            target:
+              entity_id: !input led_entities
+      - conditions:
+          - condition: state
+            entity_id: !input main_lights
+            match: all
+            state: 'off'
+        sequence:
+          - service: switch.turn_on
+            target:
+              entity_id: !input led_entities
+
+mode: single
