@@ -12,7 +12,9 @@ Here's blueprints that I've worked on out of necessity
 **IF WANTING TO USE DETACHED MODE LIGHTS WITH BLACKSHOME SMART LIGHT BLUEPRINTS**
 
 **Helper & Backlights Sync to Lights - Sync a helper with lights and update LED indicators**
+
 <a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fjzxandy%2FHA-Blueprints%2Fblob%2Fmain%2FHelper+and+Backlights+Sync+to+Lights" target="_blank" rel="noreferrer noopener"><img src="https://my.home-assistant.io/badges/blueprint_import.svg" alt="Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled." /></a>
 
 **Helper Toggle on Button Press - Toggle a helper when one or more buttons are pressed**
+
 <a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fjzxandy%2FHA-Blueprints%2Fblob%2Fmain%2FHelper+Toggle+on+Button+Press" target="_blank" rel="noreferrer noopener"><img src="https://my.home-assistant.io/badges/blueprint_import.svg" alt="Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled." /></a>
