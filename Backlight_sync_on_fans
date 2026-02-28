@@ -1,0 +1,75 @@
+blueprint:
+  name: Helper & backlights Sync to Fan
+  description: Sync a helper with a fan and update LED indicators
+  domain: automation
+  input:
+    main_fans:
+      name: Fan
+      description: One or more fans to read
+      selector:
+        entity:
+          domain: fan
+          multiple: true
+    helper_entity:
+      name: Helper
+      description: Input boolean to sync with fan
+      selector:
+        entity:
+          domain: input_boolean
+    led_entities:
+      name: LED Indicators
+      description: Switches to reflect opposite of fan
+      default: []
+      selector:
+        entity:
+          domain: switch
+          multiple: true
+
+trigger:
+  - platform: state
+    entity_id: !input main_fans
+
+action:
+  # Sync helper to match fans
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: !input main_fans
+            match: any
+            state: 'on'
+        sequence:
+          - service: input_boolean.turn_on
+            target:
+              entity_id: !input helper_entity
+      - conditions:
+          - condition: state
+            entity_id: !input main_fans
+            match: all
+            state: 'off'
+        sequence:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: !input helper_entity
+
+  # Update LEDs opposite of fans
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: !input main_fans
+            match: any
+            state: 'on'
+        sequence:
+          - service: switch.turn_off
+            target:
+              entity_id: !input led_entities
+      - conditions:
+          - condition: state
+            entity_id: !input main_fans
+            match: all
+            state: 'off'
+        sequence:
+          - service: switch.turn_on
+            target:
+              entity_id: !input led_entities
+
+mode: single
