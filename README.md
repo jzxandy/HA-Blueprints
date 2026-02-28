@@ -13,12 +13,12 @@ Here's blueprints that I've worked on out of necessity
 
 **Helper & Backlights Sync to Lights - Sync a helper with lights and update LED indicators**
 
-<a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fjzxandy%2FHA-Blueprints%2Fblob%2Fmain%2FHelper+and+Backlights+Sync+to+Lights" target="_blank" rel="noreferrer noopener"><img src="https://my.home-assistant.io/badges/blueprint_import.svg" alt="Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled." /></a>
+<a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fjzxandy%2FHA-Blueprints%2Fblob%2Fmain%2FHelper_and_Backlights_Sync_to_Lights" target="_blank" rel="noreferrer noopener"><img src="https://my.home-assistant.io/badges/blueprint_import.svg" alt="Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled." /></a>
 
 **Helper Toggle on Button Press - Toggle a helper when one or more buttons are pressed**
 
-<a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fjzxandy%2FHA-Blueprints%2Fblob%2Fmain%2FHelper+Toggle+on+Button+Press" target="_blank" rel="noreferrer noopener"><img src="https://my.home-assistant.io/badges/blueprint_import.svg" alt="Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled." /></a>
+<a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fjzxandy%2FHA-Blueprints%2Fblob%2Fmain%2FHelper_Toggle_on_Button_Press" target="_blank" rel="noreferrer noopener"><img src="https://my.home-assistant.io/badges/blueprint_import.svg" alt="Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled." /></a>
 
 **Backlights Sync to Fans - Sync a helper with fans and update LED indicators**
 
-<a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fjzxandy%2FHA-Blueprints%2Fblob%2Fmain%2FBacklight+sync+on+fans" target="_blank" rel="noreferrer noopener"><img src="https://my.home-assistant.io/badges/blueprint_import.svg" alt="Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled." /></a>
+<a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fjzxandy%2FHA-Blueprints%2Fblob%2Fmain%2FBacklight_sync_on_fans" target="_blank" rel="noreferrer noopener"><img src="https://my.home-assistant.io/badges/blueprint_import.svg" alt="Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled." /></a>
