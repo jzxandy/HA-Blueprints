@@ -1,0 +1,125 @@
+blueprint:
+  name: Helper & Backlights Sync to Lights
+  description: >
+    Sync an input_boolean helper with one or more lights, and optionally keep LED indicator
+    switches set to the inverse of the light state.
+
+
+    - 💡 If **any** light is on, the helper turns on and LEDs turn off.
+
+    - 🌑 If **all** lights are off, the helper turns off and LEDs turn on.
+
+    - ⚠️ If lights are unavailable or unknown, the helper and LEDs are left in their current
+    state (no change).
+
+    - 🔄 Only fires on meaningful on/off transitions — attribute-only changes (brightness,
+    colour temperature, etc.) are ignored.
+
+  domain: automation
+  input:
+    main_lights:
+      name: Lights
+      description: One or more lights to read. The helper and LEDs will be synced whenever any of these lights turn on or off.
+      selector:
+        entity:
+          domain: light
+          multiple: true
+    helper_entity:
+      name: Helper
+      description: Input boolean to sync with the lights. Turns on when any light is on, off when all lights are off.
+      selector:
+        entity:
+          domain: input_boolean
+    led_entities:
+      name: LED Indicators
+      description: Optional — switches to reflect the opposite state of your light(s). Leave empty if not required.
+      default: []
+      selector:
+        entity:
+          domain: switch
+          multiple: true
+
+# FIX #1: Split into two explicit triggers with from/to constraints so the automation
+# only fires on real on<->off transitions. This prevents spurious triggers from
+# attribute-only changes (brightness, colour temp) and unavailable/unknown state flickers.
+trigger:
+  - platform: state
+    entity_id: !input main_lights
+    from: "off"
+    to: "on"
+    id: 'light_turned_on'
+  - platform: state
+    entity_id: !input main_lights
+    from: "on"
+    to: "off"
+    id: 'light_turned_off'
+
+variables:
+  main_lights: !input main_lights
+  led_entities: !input led_entities
+
+action:
+  # ── SYNC HELPER ────────────────────────────────────────────────────────────
+  # Policy: any light on → helper on; all lights off → helper off.
+  # FIX #3: Added default: [] to explicitly handle unavailable/unknown states
+  # gracefully — helper is left unchanged rather than being set incorrectly.
+  - choose:
+      # Any light is on → helper ON
+      - conditions:
+          - condition: state
+            entity_id: !input main_lights
+            match: any
+            state: 'on'
+        sequence:
+          - service: input_boolean.turn_on
+            target:
+              entity_id: !input helper_entity
+      # All lights are off → helper OFF
+      - conditions:
+          - condition: state
+            entity_id: !input main_lights
+            match: all
+            state: 'off'
+        sequence:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: !input helper_entity
+    # FIX #3: Lights unavailable/unknown — leave helper as-is.
+    default: []
+
+  # ── SYNC LED INDICATORS (inverse of lights) ────────────────────────────────
+  # Policy: any light on → LEDs OFF; all lights off → LEDs ON.
+  # FIX #2: Wrapped in an outer choose that guards against empty led_entities,
+  # preventing unnecessary service calls and log warnings.
+  # FIX #3: Added default: [] to handle unavailable/unknown states — LEDs left unchanged.
+  - choose:
+      - conditions:
+          - condition: template
+            # FIX #2: Only proceed if LED entities have been configured.
+            value_template: "{{ led_entities != [] }}"
+        sequence:
+          - choose:
+              # Any light is on → LEDs OFF (inverse)
+              - conditions:
+                  - condition: state
+                    entity_id: !input main_lights
+                    match: any
+                    state: 'on'
+                sequence:
+                  - service: switch.turn_off
+                    target:
+                      entity_id: !input led_entities
+              # All lights are off → LEDs ON (inverse)
+              - conditions:
+                  - condition: state
+                    entity_id: !input main_lights
+                    match: all
+                    state: 'off'
+                sequence:
+                  - service: switch.turn_on
+                    target:
+                      entity_id: !input led_entities
+            # FIX #3: Lights unavailable/unknown — leave LEDs as-is.
+            default: []
+
+mode: single
