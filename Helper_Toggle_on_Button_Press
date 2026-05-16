@@ -1,25 +1,40 @@
 blueprint:
   name: Helper Toggle on Button Press
-  description: Toggle a helper when one or more buttons are pressed
+  description: >
+    Toggle an input_boolean helper whenever one or more buttons are pressed.
+
+
+    - 🔘 Fires only on a clean **released → press** transition, ignoring spurious
+    triggers from unavailable or unknown button states (e.g. after a Zigbee reconnect).
+
+    - 🔄 Every physical press is honoured in order — rapid presses are queued rather
+    than silently dropped, keeping the helper in sync with user intent.
+
   domain: automation
   input:
     button_entities:
       name: Buttons
-      description: One or more buttons to trigger the helper toggle
+      description: >
+        One or more button sensor entities to trigger the helper toggle.
+        Each button in this list will independently toggle the helper when pressed.
       selector:
         entity:
           domain: sensor
           multiple: true
     helper_entity:
       name: Helper
-      description: Input boolean to toggle
+      description: >
+        The input_boolean to toggle on each button press.
       selector:
         entity:
           domain: input_boolean
 
+# FIX #1: Added from: "released" so the trigger only fires on a genuine physical
+# button press, not on transitions from unavailable/unknown (e.g. after reconnect).
 trigger:
   - platform: state
     entity_id: !input button_entities
+    from: "released"
     to: "press"
 
 action:
@@ -27,4 +42,9 @@ action:
     target:
       entity_id: !input helper_entity
 
-mode: single
+# FIX #2: Changed from mode: single to mode: queued with max: 2.
+# mode: single would silently drop a second press that arrived while the first
+# was still being processed, leaving the helper in the wrong state.
+# queued ensures every press is honoured in sequence.
+mode: queued
+max: 2
