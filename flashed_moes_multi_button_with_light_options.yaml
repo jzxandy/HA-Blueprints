@@ -29,7 +29,7 @@ blueprint:
     ### 🔧 Device Compatibility
 
 
-    This blueprint is made for use with Moe's Zigbee switches flashed with custom firmware and makes automating light controls in detached mode easier. Compatible Moe's zigbee switch models include:  
+    This blueprint is made for use with Moe’s Zigbee switches flashed with custom firmware and makes automating light controls in detached mode easier. Compatible Moe's zigbee switch models include:  
 
     - **TS0011** (1 gang - OTA FLASH COMPATIBLE)  
 
@@ -65,15 +65,6 @@ blueprint:
     - `State (Endpoint: relay_x)` - `ON`  
 
     - `Power-on behavior (Endpoint: relay_x)` - `ON`
-
-
-    ### 🎨 RGBW / RGBWW Colour Format
-
-    When using RGBW or RGBWW colour modes, enter values as a YAML list in the object input box.
-
-    - **RGBW** example: `[255, 128, 0, 255]` *(red, green, blue, white)*
-
-    - **RGBWW** example: `[255, 128, 0, 255, 200]` *(red, green, blue, cold white, warm white)*
 
   domain: automation
   input:
@@ -153,11 +144,7 @@ blueprint:
               mode: slider
         include_light_colour_control:
           name: Light Colour Options
-          # FIX #5: Clarified RGBW/RGBWW input format in description.
-          # Full format guidance is also added to the blueprint description above.
-          description: >
-            Colour temperature for white light only, RGB for colours, RGBW or RGBWW for multiple colour/white channels.
-            For RGBW/RGBWW, enter values as a YAML list in the object field — e.g. `[255, 128, 0, 255]`.
+          description: Colour temperature for white light only, RGB for colours, RGBW or RGBWW for multiple colour/white channels.
           default: disable_colour_control
           selector:
             select:
@@ -191,15 +178,13 @@ blueprint:
             color_rgb:
         light_rgbw_colour:
           name: RGBW Colour
-          # FIX #5: Added explicit format guidance directly on the input field.
-          description: "Only works when 'Use RGBW Colour' is selected. Enter as a YAML list: [R, G, B, W] — e.g. [255, 128, 0, 255]"
+          description: Only works when "Use RGBW Colour" is selected.
           default: [255, 255, 255, 255]
           selector:
             object:
         light_rgbww_colour:
           name: RGBWW Colour
-          # FIX #5: Added explicit format guidance directly on the input field.
-          description: "Only works when 'Use RGBWW Colour' is selected. Enter as a YAML list: [R, G, B, CW, WW] — e.g. [255, 128, 0, 255, 200]"
+          description: Only works when "Use RGBWW Colour" is selected.
           default: [255, 255, 255, 255, 255]
           selector:
             object:
@@ -278,7 +263,6 @@ action:
             id: 'button_press'
         sequence:
           - choose:
-              # Some or all lights are on — turn them all off
               - conditions: "{{ expand(main_entity) | selectattr('state','eq','on') | list | count > 0 }}"
                 sequence:
                   - service: light.turn_off
@@ -286,74 +270,45 @@ action:
                       entity_id: !input main_entity
                     data:
                       transition: "{{ light_transition_off if 'use_transition' in include_light_control else 0 }}"
-              # All lights are off — turn them on
               - conditions: "{{ expand(main_entity) | selectattr('state','eq','off') | list | count == expand(main_entity) | list | count }}"
                 sequence:
                   - service: light.turn_on
                     target:
                       entity_id: !input main_entity
                     data: "{{ light_data }}"
-            # FIX #3: Added default fallback to handle unavailable/unknown light states gracefully.
-            # If lights are unavailable, we do nothing and skip the LED update entirely.
-            default: []
-
-          # FIX #1 (LED polarity) + FIX #4 (guard on empty alternating_entity):
-          # LEDs should be the INVERSE of the light state.
-          # After turn_off: lights go off → LEDs should turn ON  (switch.turn_on)
-          # After turn_on:  lights go on  → LEDs should turn OFF (switch.turn_off)
-          # We re-evaluate light state after the toggle command to determine the new state.
+          # Toggle LEDs if defined
           - choose:
               - conditions: "{{ alternating_entity != [] }}"
                 sequence:
-                  - choose:
-                      # Lights are now ON (were all off, just turned on) → LEDs OFF
-                      - conditions: "{{ expand(main_entity) | selectattr('state','eq','on') | list | count > 0 }}"
-                        sequence:
-                          - service: switch.turn_off
-                            target:
-                              entity_id: !input alternating_entity
-                      # Lights are now OFF (were some/all on, just turned off) → LEDs ON
-                      - conditions: "{{ expand(main_entity) | selectattr('state','eq','off') | list | count == expand(main_entity) | list | count }}"
-                        sequence:
-                          - service: switch.turn_on
-                            target:
-                              entity_id: !input alternating_entity
-                    # FIX #3: If lights are unavailable/unknown, leave LEDs in their current state.
-                    default: []
+                  - service: >
+                      {% if expand(main_entity) | selectattr('state','eq','on') | list | count > 0 %}
+                        switch.turn_on
+                      {% else %}
+                        switch.turn_off
+                      {% endif %}
+                    target:
+                      entity_id: !input alternating_entity
 
       # LIGHTS TURNED ON REMOTELY
-      # FIX #2: Replaced multi-entity `condition: state` (which requires ALL buttons to be
-      # "released") with a template condition that checks if ANY button is currently "press".
-      # If any button is actively being pressed, this remote trigger is skipped to avoid
-      # conflicting with the button_press path.
-      # FIX #4: Added guard so this sequence is skipped when no LED entities are configured.
       - conditions:
           - condition: trigger
             id: 'lights_turned_on'
-          - condition: template
-            value_template: >
-              {{ expand(toggle_switch) | selectattr('state','eq','press') | list | count == 0 }}
-          - condition: template
-            value_template: "{{ alternating_entity != [] }}"
+          - condition: state
+            entity_id: !input toggle_switch
+            state: "released"
         sequence:
-          # Lights turned on remotely → LEDs OFF (inverse)
           - service: switch.turn_off
             target:
               entity_id: !input alternating_entity
 
       # LIGHTS TURNED OFF REMOTELY
-      # FIX #2: Same fix as above — use template to check no buttons are actively pressed.
-      # FIX #4: Added guard so this sequence is skipped when no LED entities are configured.
       - conditions:
           - condition: trigger
             id: 'lights_turned_off'
-          - condition: template
-            value_template: >
-              {{ expand(toggle_switch) | selectattr('state','eq','press') | list | count == 0 }}
-          - condition: template
-            value_template: "{{ alternating_entity != [] }}"
+          - condition: state
+            entity_id: !input toggle_switch
+            state: "released"
         sequence:
-          # Lights turned off remotely → LEDs ON (inverse)
           - service: switch.turn_on
             target:
               entity_id: !input alternating_entity
